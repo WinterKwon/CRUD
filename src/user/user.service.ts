@@ -62,9 +62,7 @@ export class UserService {
         .createQueryBuilder()
         .update(User)
         .set({
-          role: userData.role,
-          tribe: userData.tribe,
-          userStatus: userData.userStatus,
+          ...userData,
         })
         .where('id = :id', { id })
         .execute();
