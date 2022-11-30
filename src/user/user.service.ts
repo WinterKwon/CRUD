@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm/repository/Repository';
-
+import { mariaDataSource } from 'src/app.data.source';
 @Injectable()
 export class UserService {
   constructor(
@@ -45,5 +45,33 @@ export class UserService {
         .where('email = :email', { email: email })
         .execute();
     }
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
+  async getUserById(id: number): Promise<User> {
+    return await this.userRepository.findOneBy({ id });
+  }
+
+  async update(id: number, userData: User): Promise<void> {
+    const existedUser = await this.userRepository.findOneBy({ id });
+    if (existedUser) {
+      await this.userRepository
+        .createQueryBuilder()
+        .update(User)
+        .set({
+          role: userData.role,
+          tribe: userData.tribe,
+          userStatus: userData.userStatus,
+        })
+        .where('id = :id', { id })
+        .execute();
+    }
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.userRepository.delete(id);
   }
 }
