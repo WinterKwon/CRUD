@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  private logger = new Logger('startgin kakao-auth-controller');
+  private logger = new Logger('starting kakao-auth-controller');
   constructor(private readonly authService: AuthService) {}
 
   @Get('/kakao')
