@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm/repository/Repository';
@@ -26,7 +26,8 @@ export class UserService {
   async create(userData: User): Promise<any> {
     const user = await this.userRepository.save(userData);
     if (!user) {
-      return { message: 'failed to create a user' };
+      // return { message: 'failed to create a user' };
+      throw new NotFoundException();
     }
     return user;
   }
@@ -55,7 +56,7 @@ export class UserService {
     return await this.userRepository.findOneBy({ id });
   }
 
-  async update(id: number, userData: User): Promise<void> {
+  async update(id: number, userData: User): Promise<User> {
     const existedUser = await this.userRepository.findOneBy({ id });
     if (existedUser) {
       await this.userRepository
@@ -67,9 +68,15 @@ export class UserService {
         .where('id = :id', { id })
         .execute();
     }
+    return await this.userRepository.findOneBy({ id });
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<any> {
+    const existedUser = await this.userRepository.findOneBy({ id });
+    if (!existedUser) {
+      return 'could not find such a user';
+    }
     await this.userRepository.delete(id);
+    return `successfully deleted userID ${id}`;
   }
 }

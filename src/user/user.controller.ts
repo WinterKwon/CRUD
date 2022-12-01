@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/entities/user.entity';
+import { response } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -49,23 +50,45 @@ export class UserController {
 
   @Post()
   async create(@Body() userData: User, @Res() response) {
-    const newUser = await this.userService.create(userData);
-    return response.status(HttpStatus.OK).json({
-      message: 'created user successfully',
-      newUser,
-    });
+    try {
+      const newUser = await this.userService.create(userData);
+      return response.status(HttpStatus.OK).json({
+        message: 'created user successfully',
+        newUser,
+      });
+    } catch (err) {
+      return response.status(HttpStatus.BAD_REQUEST).json({
+        messasge: 'failed to create new user',
+      });
+    }
   }
 
   @Patch(':id')
-  async update(@Param('id') id: number, @Body() userData: User) {
-    await this.userService.update(id, userData);
+  async update(
+    @Param('id') id: number,
+    @Body() userData: User,
+    @Res() response,
+  ) {
+    try {
+      const updatedUser = await this.userService.update(id, userData);
+      return response.status(HttpStatus.OK).json({
+        message: 'updated user successfully',
+        updatedUser,
+      });
+    } catch (err) {
+      return response.status(HttpStatus.BAD_REQUEST).json({
+        message: 'failed to update user data',
+      });
+    }
   }
 
   @Delete(':id')
   async remove(@Param('id') id: number, @Res() response) {
-    await this.userService.remove(id);
+    const result = await this.userService.remove(id);
+
+    //삭제 실패시 status 코드 반영하기
     return response.status(HttpStatus.OK).json({
-      message: 'delete user sucessfully',
+      message: result,
     });
   }
 }

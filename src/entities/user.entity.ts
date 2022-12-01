@@ -20,10 +20,10 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   userName: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column({
