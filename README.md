@@ -76,11 +76,23 @@ Nest is [MIT licensed](LICENSE).
 
 </details>
 
-# User CRUD
-### Nest.js로 백엔드 서버 구성
+# 백엔드 서버 구성
+### 기술스택
+Nest.js
 
-* 기능 구현
-- user 관련 crud
+### API 목록
 
-실행 결과 [postman 문서](https://documenter.getpostman.com/view/20914545/2s8Yt1rV7X) 참조
+|ROUTE|METHOD|description|
+|---|---|---|
+|/user|GET|모든 유저 조회|
+|/user/:id|GET|id값으로 데이터 조회|
+|/user/:email|GET|email로 데이터 조회|
+|/user|POST|user데이터 생성|
+|/user/:id|PATCH|user 데이터 수정|
+|/user/:id|DELETE|user 데이터 삭제|
+
+
+
+### 실행 결과 
+[postman 문서](https://documenter.getpostman.com/view/20914545/2s8Yt1rV7X) 참조
 
