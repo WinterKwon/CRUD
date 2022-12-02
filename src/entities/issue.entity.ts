@@ -4,8 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Register } from './register.entity';
 
 @Entity()
 export class Issue extends BaseEntity {
@@ -23,4 +26,8 @@ export class Issue extends BaseEntity {
 
   @CreateDateColumn({ name: 'created_at', comment: '이슈 생성일' })
   issueDate: Date;
+
+  @OneToOne(() => Register)
+  @JoinColumn({ name: 'register_ID' })
+  register: Register;
 }
