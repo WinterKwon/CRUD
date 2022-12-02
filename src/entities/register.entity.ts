@@ -1,15 +1,10 @@
-import { ColdObservable } from 'rxjs/internal/testing/ColdObservable';
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
-import { Issue } from './issue.entity';
 
 export enum RegisterStatus {
   ACTIVE = 'active',
@@ -26,6 +21,9 @@ export class Register extends BaseEntity {
 
   @Column({ name: 'due_date', comment: '이슈의 등록 마감 기한' })
   dueDate: Date;
+
+  @Column({ default: 'inactive' })
+  status: RegisterStatus;
 
   @Column({ default: 0 })
   pros: number;
