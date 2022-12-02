@@ -77,6 +77,10 @@ Nest is [MIT licensed](LICENSE).
 </details>
 
 # User CRUD
+### Nest.js로 백엔드 서버 구성
+
+* 기능 구현
+- user 관련 crud
 
 실행 결과 [postman 문서](https://documenter.getpostman.com/view/20914545/2s8Yt1rV7X) 참조
 
