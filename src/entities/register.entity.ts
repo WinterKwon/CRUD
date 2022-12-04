@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Issue } from './issue.entity';
+import { RegisterProCon } from './registerProCon.entity';
 
 export enum RegisterStatus {
   ACTIVE = 'active',
@@ -27,11 +28,8 @@ export class Register extends BaseEntity {
   @Column({ default: 'inactive' })
   status: RegisterStatus;
 
-  @Column({ default: 0 })
-  pros: number;
-
-  @Column({ default: 0 })
-  cons: number;
+  @OneToOne(() => RegisterProCon)
+  regiProCon: RegisterProCon;
 
   @OneToOne(() => Issue, (issue) => issue.register)
   issue: Issue;
