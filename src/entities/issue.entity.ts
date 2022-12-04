@@ -8,6 +8,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Poll } from './poll.entity';
 import { Register } from './register.entity';
 
 @Entity()
@@ -30,4 +31,8 @@ export class Issue extends BaseEntity {
   @OneToOne(() => Register)
   @JoinColumn({ name: 'register_ID' })
   register: Register;
+
+  @OneToOne(() => Poll)
+  @JoinColumn({ name: 'poll_ID' })
+  poll: Poll;
 }
