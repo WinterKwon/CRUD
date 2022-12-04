@@ -19,6 +19,14 @@ export enum UserStatus {
   EXPELLED = 'expelled',
 }
 
+export enum UserTribe {
+  TIGER = 'tiger',
+  HIPPO = 'hippo',
+  ELEPHANT = 'elephant',
+  DINOSAUR = 'dinosaur',
+  LION = 'lion',
+}
+
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -49,12 +57,12 @@ export class User extends BaseEntity {
   })
   userStatus: UserStatus;
 
-  @Column({ default: ' ', nullable: true })
-  tribe: string;
+  @Column({ nullable: true })
+  tribe: UserTribe;
 
   @Column({ type: 'varchar', nullable: true })
   refreshToken: string;
 
-  @OneToMany(() => Issue, (issue) => issue.id)
+  @OneToMany(() => Issue, (issue) => issue.user_id)
   issues: Issue[];
 }
