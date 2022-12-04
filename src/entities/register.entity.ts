@@ -25,7 +25,7 @@ export class Register extends BaseEntity {
   @Column({ name: 'due_date', comment: '이슈의 등록 마감 기한' })
   dueDate: Date;
 
-  @Column({ default: 'inactive' })
+  @Column({ default: RegisterStatus.INACTIVE })
   status: RegisterStatus;
 
   @OneToOne(() => RegisterProCon)
