@@ -9,6 +9,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Politician } from './politician.entity';
 import { Poll } from './poll.entity';
 import { Register } from './register.entity';
 import { User } from './user.entity';
@@ -41,4 +42,8 @@ export class Issue extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user_id: User;
+
+  @ManyToOne(() => Politician)
+  @JoinColumn({ name: 'politician_id' })
+  politician_id: User;
 }

@@ -1,4 +1,11 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Issue } from './issue.entity';
 
 @Entity()
 export class Politician extends BaseEntity {
@@ -13,4 +20,7 @@ export class Politician extends BaseEntity {
 
   @Column()
   party: string;
+
+  @OneToMany(() => Issue, (issue) => issue.id)
+  issues: Issue;
 }
