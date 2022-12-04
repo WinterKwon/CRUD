@@ -3,7 +3,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -34,7 +33,6 @@ export class Register extends BaseEntity {
   @Column({ default: 0 })
   cons: number;
 
-  @OneToOne(() => Issue)
-  @JoinColumn({ name: 'issue_id' })
+  @OneToOne(() => Issue, (issue) => issue.register)
   issue: Issue;
 }

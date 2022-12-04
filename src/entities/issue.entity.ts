@@ -31,11 +31,11 @@ export class Issue extends BaseEntity {
   @CreateDateColumn({ name: 'created_at', comment: '이슈 생성일' })
   issueDate: Date;
 
-  @OneToOne(() => Register)
+  @OneToOne(() => Register, (register) => register.issue)
   @JoinColumn({ name: 'register_id' })
   register: Register;
 
-  @OneToOne(() => Poll)
+  @OneToOne(() => Poll, (poll) => poll.issue)
   @JoinColumn({ name: 'poll_id' })
   poll: Poll;
 

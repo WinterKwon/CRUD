@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToOne,
 } from 'typeorm';
+import { Issue } from './issue.entity';
 
 @Entity()
 export class Poll extends BaseEntity {
@@ -19,4 +21,7 @@ export class Poll extends BaseEntity {
 
   @Column({ default: true })
   isPollActive: boolean;
+
+  @OneToOne(() => Issue, (issue) => issue.poll)
+  issue: Issue;
 }
