@@ -7,6 +7,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { Issue } from './issue.entity';
+import { PollResult } from './pollResult.entitiy';
 
 @Entity()
 export class Poll extends BaseEntity {
@@ -24,4 +25,7 @@ export class Poll extends BaseEntity {
 
   @OneToOne(() => Issue, (issue) => issue.poll)
   issue: Issue;
+
+  @OneToOne(() => PollResult)
+  pollResult: PollResult;
 }
