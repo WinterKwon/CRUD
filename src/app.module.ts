@@ -2,14 +2,18 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User } from './entities/user.entity';
-import { UserController } from './user/user.controller';
-import { UserService } from './user/user.service';
 import { UserModule } from './user/user.module';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { PoliticianModule } from './politician/politician.module';
+import { Politician } from './entities/politician.entity';
+import { IssueModule } from './issue/issue.module';
+import { Issue } from './entities/issue.entity';
+import { Register } from './entities/register.entity';
+import { Poll } from './entities/poll.entity';
+import { RegisterProCon } from './entities/registerProCon.entity';
+import { PollResult } from './entities/pollResult.entitiy';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,14 +28,24 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User],
+      entities: [
+        User,
+        Politician,
+        Issue,
+        Register,
+        Poll,
+        PollResult,
+        RegisterProCon,
+      ],
       synchronize: true,
       logging: true,
     }),
     UserModule,
     AuthModule,
+    PoliticianModule,
+    IssueModule,
   ],
-  controllers: [AppController, UserController, AuthController],
-  providers: [AppService, UserService, AuthService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
