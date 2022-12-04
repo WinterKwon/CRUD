@@ -3,8 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Issue } from './issue.entity';
 
 export enum RegisterStatus {
   ACTIVE = 'active',
@@ -30,4 +33,8 @@ export class Register extends BaseEntity {
 
   @Column({ default: 0 })
   cons: number;
+
+  @OneToOne(() => Issue)
+  @JoinColumn({ name: 'issue_id' })
+  issue: Issue;
 }

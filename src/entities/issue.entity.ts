@@ -32,11 +32,11 @@ export class Issue extends BaseEntity {
   issueDate: Date;
 
   @OneToOne(() => Register)
-  @JoinColumn({ name: 'register_ID' })
+  @JoinColumn({ name: 'register_id' })
   register: Register;
 
   @OneToOne(() => Poll)
-  @JoinColumn({ name: 'poll_ID' })
+  @JoinColumn({ name: 'poll_id' })
   poll: Poll;
 
   @ManyToOne(() => User)
@@ -45,5 +45,5 @@ export class Issue extends BaseEntity {
 
   @ManyToOne(() => Politician)
   @JoinColumn({ name: 'politician_id' })
-  politician_id: User;
+  politician_id: Politician;
 }
