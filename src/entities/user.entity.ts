@@ -1,4 +1,11 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  BaseEntity,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+} from 'typeorm';
+import { Issue } from './issue.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -47,4 +54,7 @@ export class User extends BaseEntity {
 
   @Column({ type: 'varchar', nullable: true })
   refreshToken: string;
+
+  @OneToMany(() => Issue, (issue) => issue.id)
+  issues: Issue[];
 }

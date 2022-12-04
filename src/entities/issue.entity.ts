@@ -5,11 +5,13 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Poll } from './poll.entity';
 import { Register } from './register.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Issue extends BaseEntity {
@@ -35,4 +37,8 @@ export class Issue extends BaseEntity {
   @OneToOne(() => Poll)
   @JoinColumn({ name: 'poll_ID' })
   poll: Poll;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
+  user_id: User;
 }
