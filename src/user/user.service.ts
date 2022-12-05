@@ -2,7 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm/repository/Repository';
-import { mariaDataSource } from 'src/app.data.source';
+import { AddUserDto } from './dto/user.add.user.dto';
+import { UpdateUserDto } from './dto/user.update.user.dto';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -23,7 +25,7 @@ export class UserService {
     return user;
   }
 
-  async create(userData: User): Promise<any> {
+  async create(userData: AddUserDto): Promise<any> {
     const user = await this.userRepository.save(userData);
     if (!user) {
       // return { message: 'failed to create a user' };
@@ -56,7 +58,7 @@ export class UserService {
     return await this.userRepository.findOneBy({ id });
   }
 
-  async update(id: number, userData: User): Promise<User> {
+  async update(id: number, userData: UpdateUserDto): Promise<User> {
     const existedUser = await this.userRepository.findOneBy({ id });
     if (existedUser) {
       await this.userRepository

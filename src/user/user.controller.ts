@@ -12,7 +12,8 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/entities/user.entity';
-import { response } from 'express';
+import { AddUserDto } from './dto/user.add.user.dto';
+import { UpdateUserDto } from './dto/user.update.user.dto';
 
 @Controller('user')
 export class UserController {
@@ -49,7 +50,7 @@ export class UserController {
   }
 
   @Post()
-  async create(@Body() userData: User, @Res() response) {
+  async create(@Body() userData: AddUserDto, @Res() response) {
     try {
       const newUser = await this.userService.create(userData);
       return response.status(HttpStatus.OK).json({
@@ -66,7 +67,7 @@ export class UserController {
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Body() userData: User,
+    @Body() userData: UpdateUserDto,
     @Res() response,
   ) {
     try {
