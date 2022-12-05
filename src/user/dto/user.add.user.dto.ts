@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNumber, IsOptional } from 'class-validator';
 
 enum UserRole {
   ADMIN = 'admin',
@@ -24,7 +24,7 @@ export class AddUserDto {
   @IsNumber()
   readonly id: number;
 
-  @IsString()
+  @IsEmail()
   email: string;
 
   @IsOptional()
