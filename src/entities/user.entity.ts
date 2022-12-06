@@ -60,7 +60,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   tribe: UserTribe;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'text', nullable: true })
   refreshToken: string;
 
   @OneToMany(() => Issue, (issue) => issue.user_id)
