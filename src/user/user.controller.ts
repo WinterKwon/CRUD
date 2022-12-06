@@ -64,14 +64,14 @@ export class UserController {
     }
   }
 
-  @Patch(':id')
+  @Patch(':email')
   async update(
-    @Param('id') id: number,
+    @Param('email') email: string,
     @Body() userData: UpdateUserDto,
     @Res() response,
   ) {
     try {
-      const updatedUser = await this.userService.update(id, userData);
+      const updatedUser = await this.userService.update(email, userData);
       return response.status(HttpStatus.OK).json({
         message: 'updated user successfully',
         updatedUser,
@@ -79,6 +79,7 @@ export class UserController {
     } catch (err) {
       return response.status(HttpStatus.BAD_REQUEST).json({
         message: 'failed to update user data',
+        err,
       });
     }
   }

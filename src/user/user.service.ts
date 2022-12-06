@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm/repository/Repository';
@@ -58,8 +62,8 @@ export class UserService {
     return await this.userRepository.findOneBy({ id });
   }
 
-  async update(id: number, userData: UpdateUserDto): Promise<User> {
-    const existedUser = await this.userRepository.findOneBy({ id });
+  async update(email: string, userData: UpdateUserDto): Promise<User> {
+    const existedUser = await this.userRepository.findOneBy({ email });
     if (existedUser) {
       await this.userRepository
         .createQueryBuilder()
@@ -67,10 +71,11 @@ export class UserService {
         .set({
           ...userData,
         })
-        .where('id = :id', { id })
+        .where('email = :email', { email })
         .execute();
+      return await this.userRepository.findOneBy({ email });
     }
-    return await this.userRepository.findOneBy({ id });
+    throw new BadRequestException();
   }
 
   async remove(id: number): Promise<any> {
