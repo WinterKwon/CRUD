@@ -21,9 +21,6 @@ enum UserTribe {
 }
 
 export class AddUserDto {
-  @IsNumber()
-  readonly id: number;
-
   @IsEmail()
   email: string;
 
