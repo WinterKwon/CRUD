@@ -22,6 +22,6 @@ export class PoliticianService {
     return await this.politicianRepository.findOneBy({ id });
   }
 
-  async getPoliCountByIssue(id:number): Promise<
+  // async getPoliCountByIssue(id:number): Promise<
 
 }

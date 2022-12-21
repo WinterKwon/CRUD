@@ -63,6 +63,6 @@ export class User extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   refreshToken: string;
 
-  @OneToMany(() => Issue, (issue) => issue.user_id)
+  @OneToMany(() => Issue, (issue) => issue.user)
   issues: Issue[];
 }

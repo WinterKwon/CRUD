@@ -21,6 +21,6 @@ export class Politician extends BaseEntity {
   @Column()
   party: string;
 
-  @OneToMany(() => Issue, (issue) => issue.politician_id)
+  @OneToMany(() => Issue, (issue) => issue.politician)
   issues: Issue[];
 }
