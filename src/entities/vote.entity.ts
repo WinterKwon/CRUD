@@ -1,14 +1,5 @@
-import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Issue } from './issue.entity';
-import { RegisterProCon } from './registerProCon.entity';
-import { EntityRepository } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
 export enum RegisterStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
