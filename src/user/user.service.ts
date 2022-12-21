@@ -22,7 +22,7 @@ export class UserService {
         email: email,
       },
     });
-
+    console.log(user);
     if (!user) {
       return null;
     }

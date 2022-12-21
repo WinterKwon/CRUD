@@ -24,16 +24,16 @@ export class AuthService {
     if (!user) {
       return { message: 'failed to create user' };
     }
-    return { message: 'created successfully' };
+    return { message: 'created successfully', user };
   }
 
-  async createLoginToken(user: User) {
+  createLoginToken(user: User) {
     const payload = {
       email: user.email,
       userToken: 'loginToken',
     };
 
-    return await this.jwtService.sign(payload, {
+    return this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET_KEY,
       expiresIn: '72h',
     });
@@ -57,5 +57,15 @@ export class AuthService {
 
     await this.userService.updateRefreshToken(user.email, refreshToken);
     return refreshToken;
+  }
+
+  async validateToken(token: string) {
+    const result = await this.jwtService.verify(token, {
+      secret: process.env.JWT_SECRET_KEY,
+    });
+    if (!result) {
+      return { message: 'failed to verify token' };
+    }
+    return result;
   }
 }
