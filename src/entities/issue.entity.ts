@@ -41,9 +41,9 @@ export class Issue extends BaseEntity {
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
-  user_id: User;
+  user: User;
 
   @ManyToOne(() => Politician)
   @JoinColumn({ name: 'politician_id' })
-  politician_id: Politician;
+  politician: Politician;
 }
