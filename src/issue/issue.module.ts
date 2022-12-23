@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Issue } from 'src/entities/issue.entity';
+import { Politician } from 'src/entities/politician.entity';
 import { Poll } from 'src/entities/poll.entity';
 import { PollResult } from 'src/entities/pollResult.entitiy';
 import { Register } from 'src/entities/register.entity';
@@ -18,6 +19,7 @@ import { IssueService } from './issue.service';
       PollResult,
       RegisterProCon,
       User,
+      Politician,
     ]),
   ],
   controllers: [IssueController],

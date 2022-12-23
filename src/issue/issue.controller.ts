@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  HttpStatus,
+  Post,
+  Res,
+  Delete,
+} from '@nestjs/common';
 
 import { IssueService } from './issue.service';
 
@@ -7,13 +15,16 @@ export class IssueController {
   constructor(private issueService: IssueService) {}
 
   @Post()
-  async addIssue(@Body() issueData, @Req() request, @Res() response) {
+  async addIssue(@Body() issueData, @Res() response) {
     try {
-      const regiUser = issueData.user_id;
+      // const regiUser = issueData.userEmail;
+      const regiUser = issueData.userId;
       const issue = await this.issueService.addIssue(issueData, regiUser);
+      console.log(issue);
       if (issue) {
         return response.json({
-          message: 'createdIssue successfully',
+          message: 'created Issue successfully',
+          issue,
         });
       }
     } catch (err) {
@@ -21,5 +32,15 @@ export class IssueController {
         message: 'failed to create issue',
       });
     }
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: number, @Res() response) {
+    const result = await this.issueService.remove(id);
+
+    //삭제 실패시 status 코드 반영하기
+    return response.status(HttpStatus.OK).json({
+      message: result,
+    });
   }
 }

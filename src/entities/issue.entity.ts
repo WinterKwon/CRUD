@@ -1,4 +1,3 @@
-import { link } from 'fs';
 import {
   BaseEntity,
   Column,
@@ -39,11 +38,13 @@ export class Issue extends BaseEntity {
   @JoinColumn({ name: 'poll_id' })
   poll: Poll;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.issues)
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Politician)
+  @ManyToOne(() => Politician, (Politician) => Politician.issues, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'politician_id' })
   politician: Politician;
 }

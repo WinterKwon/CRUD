@@ -7,8 +7,13 @@ import {
 } from 'class-validator';
 
 export class AddIssueDto {
+  @IsOptional()
   @IsEmail()
   userEmail: string;
+
+  @IsOptional()
+  @IsNumber()
+  userId: number;
 
   @IsNumber()
   targetPolitician: number;
