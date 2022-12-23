@@ -28,7 +28,7 @@ export class PoliticianController {
     }
   }
 
-  @Get()
+  @Get('all')
   async getAllPoliticians(@Res() response): Promise<Politician[]> {
     try {
       const politicians = await this.politicianService.getAllPoliticians();
@@ -41,12 +41,8 @@ export class PoliticianController {
     }
   }
 
-  @Get()
-  async getOnePoliticianById(
-    @Req() requestIdleCallback,
-    @Res() response,
-    @Param('id') id: string,
-  ) {
+  @Get(':id')
+  async getOnePoliticianById(@Res() response, @Param('id') id: string) {
     try {
       const politician = await this.politicianService.getOnePoliticianById(+id);
       return response.status(HttpStatus.OK).json({
@@ -59,7 +55,7 @@ export class PoliticianController {
   }
 
   // 동명이인 가능하므로 배열로 반환
-  @Get()
+  @Get(':name')
   async getOnePoliticianByName(@Res() response, @Param('name') name: string) {
     try {
       const politician = await this.politicianService.getOnePoliticianByName(
@@ -106,7 +102,7 @@ export class PoliticianController {
       });
     } catch (err) {
       return response.status(HttpStatus.BAD_REQUEST).json({
-        message: 'failed to update user data',
+        message: 'failed to update politician data',
         err,
       });
     }
