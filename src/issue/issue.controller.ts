@@ -44,14 +44,18 @@ export class IssueController {
     @Res() response,
   ) {
     try {
-      const newVote = this.issueService.castVote(voteData, issueId);
+      const newVote = await this.issueService.castVote(voteData, issueId);
       if (newVote) {
         return response.status(HttpStatus.OK).json({
           message: 'cast a vote successfully',
           newVote,
         });
       }
-    } catch (err) {}
+    } catch (err) {
+      return response.json({
+        message: err.message,
+      });
+    }
   }
 
   @Delete(':id')

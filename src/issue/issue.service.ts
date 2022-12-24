@@ -50,21 +50,34 @@ export class IssueService {
   //   return await this.issueRepository.find();
   // }
 
-  async castVote(voteData: AddVoteDto, issueId: number): Promise<Vote> {
+  async castVote(voteData: AddVoteDto, issueId: number): Promise<any> {
     const { userId, agree, against } = voteData;
     const newVote = await this.voteRepository.create();
     const voter = await this.userRepository.findOneBy({ id: userId });
     const issue = await this.issueRepository.findOneBy({ id: issueId });
 
-    newVote.voter = voter;
-    newVote.issue = issue;
-    if (agree === against) {
-      throw new BadRequestException();
-    }
-    agree ? (newVote.agree = 1) : (newVote.against = 1);
+    if (this.hasVoted(userId, issueId)) {
+      throw new Error('has already voted');
+    } else {
+      newVote.voter = voter;
+      newVote.issue = issue;
+      if (agree === against) {
+        throw new BadRequestException();
+      }
+      agree ? (newVote.agree = 1) : (newVote.against = 1);
 
-    const result = await this.voteRepository.save(newVote);
-    return result;
+      const result = await this.voteRepository.save(newVote);
+      return result;
+    }
+  }
+
+  async hasVoted(userId: number, issueId: number): Promise<boolean> {
+    const result = this.voteRepository
+      .createQueryBuilder('vote')
+      .where('user_id = :user_id', { user_id: userId })
+      .andWhere('issue_id= :issue_id', { issue_id: issueId })
+      .getOne();
+    return result ? true : false;
   }
 
   async remove(id: number): Promise<any> {
