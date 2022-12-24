@@ -7,6 +7,9 @@ import {
   Res,
   Delete,
 } from '@nestjs/common';
+import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
+import { AddIssueDto } from './dto/issue.add.issue.dto';
+import { AddVoteDto } from './dto/issue.add.vote.dto';
 
 import { IssueService } from './issue.service';
 
@@ -15,7 +18,7 @@ export class IssueController {
   constructor(private issueService: IssueService) {}
 
   @Post()
-  async addIssue(@Body() issueData, @Res() response) {
+  async addIssue(@Body() issueData: AddIssueDto, @Res() response) {
     try {
       // const regiUser = issueData.userEmail;
       const regiUser = issueData.userId;
@@ -32,6 +35,23 @@ export class IssueController {
         message: 'failed to create issue',
       });
     }
+  }
+
+  @Post(':id/vote')
+  async createVote(
+    @Body() voteData: AddVoteDto,
+    @Param('id') issueId: number,
+    @Res() response,
+  ) {
+    try {
+      const newVote = this.issueService.castVote(voteData, issueId);
+      if (newVote) {
+        return response.status(HttpStatus.OK).json({
+          message: 'cast a vote successfully',
+          newVote,
+        });
+      }
+    } catch (err) {}
   }
 
   @Delete(':id')

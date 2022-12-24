@@ -1,4 +1,13 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Issue } from './issue.entity';
+import { User } from './user.entity';
 
 export enum RegisterStatus {
   ACTIVE = 'active',
@@ -10,15 +19,17 @@ export class Vote extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  voter: string;
+  @ManyToOne(() => User, { cascade: true })
+  @JoinColumn({ name: 'user_id' })
+  voter: User;
+
+  @ManyToOne(() => Issue, { cascade: true })
+  @JoinColumn({ name: 'issue_id' })
+  issue: Issue;
 
   @Column({ default: 0 })
-  for: number;
+  agree: number;
 
   @Column({ default: 0 })
   against: number;
-
-  // @OneToOne(() => Issue, (issue) => issue.vote)
-  // issue: Issue;
 }

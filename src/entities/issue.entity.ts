@@ -5,6 +5,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -12,6 +13,7 @@ import { Politician } from './politician.entity';
 import { Poll } from './poll.entity';
 import { Register } from './register.entity';
 import { User } from './user.entity';
+import { Vote } from './vote.entity';
 
 @Entity()
 export class Issue extends BaseEntity {
@@ -30,13 +32,17 @@ export class Issue extends BaseEntity {
   @CreateDateColumn({ name: 'created_at', comment: '이슈 생성일' })
   issueDate: Date;
 
-  @OneToOne(() => Register, (register) => register.issue)
-  @JoinColumn({ name: 'register_id' })
-  register: Register;
+  @Column({ default: true })
+  isVoteActive: boolean;
 
-  @OneToOne(() => Poll, (poll) => poll.issue)
-  @JoinColumn({ name: 'poll_id' })
-  poll: Poll;
+  @Column({ default: false })
+  isPollActive: boolean;
+
+  @OneToMany(() => Vote, (vote) => vote.issue)
+  votes: Vote[];
+
+  @OneToMany(() => Poll, (poll) => poll.issue)
+  polls: Poll[];
 
   @ManyToOne(() => User, (user) => user.issues)
   @JoinColumn({ name: 'user_id' })

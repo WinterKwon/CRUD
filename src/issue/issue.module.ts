@@ -7,6 +7,7 @@ import { PollResult } from 'src/entities/pollResult.entitiy';
 import { Register } from 'src/entities/register.entity';
 import { RegisterProCon } from 'src/entities/registerProCon.entity';
 import { User } from 'src/entities/user.entity';
+import { Vote } from 'src/entities/vote.entity';
 import { IssueController } from './issue.controller';
 import { IssueService } from './issue.service';
 
@@ -20,6 +21,7 @@ import { IssueService } from './issue.service';
       RegisterProCon,
       User,
       Politician,
+      Vote,
     ]),
   ],
   controllers: [IssueController],
