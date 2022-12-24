@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
 import { AddIssueDto } from './dto/issue.add.issue.dto';
+import { AddPollDto } from './dto/issue.add.poll.dto';
 import { AddVoteDto } from './dto/issue.add.vote.dto';
 
 import { IssueService } from './issue.service';
@@ -49,6 +50,27 @@ export class IssueController {
         return response.status(HttpStatus.OK).json({
           message: 'cast a vote successfully',
           newVote,
+        });
+      }
+    } catch (err) {
+      return response.json({
+        message: err.message,
+      });
+    }
+  }
+
+  @Post(':id/poll')
+  async createPoll(
+    @Body() pollData: AddPollDto,
+    @Param('id') issueId: number,
+    @Res() response,
+  ) {
+    try {
+      const newPoll = await this.issueService.castPoll(pollData, issueId);
+      if (newPoll) {
+        return response.status(HttpStatus.OK).json({
+          message: 'cast a poll successfully',
+          newPoll,
         });
       }
     } catch (err) {

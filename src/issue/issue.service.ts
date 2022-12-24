@@ -2,10 +2,12 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Issue } from 'src/entities/issue.entity';
 import { Politician } from 'src/entities/politician.entity';
+import { Poll } from 'src/entities/poll.entity';
 import { User } from 'src/entities/user.entity';
 import { Vote } from 'src/entities/vote.entity';
 import { Repository } from 'typeorm';
 import { AddIssueDto } from './dto/issue.add.issue.dto';
+import { AddPollDto } from './dto/issue.add.poll.dto';
 import { AddVoteDto } from './dto/issue.add.vote.dto';
 
 @Injectable()
@@ -22,8 +24,12 @@ export class IssueService {
 
     @InjectRepository(Vote)
     private voteRepository: Repository<Vote>,
+
+    @InjectRepository(Poll)
+    private pollRepository: Repository<Poll>,
   ) {}
 
+  // 이슈 추가
   async addIssue(body: AddIssueDto, regiUser: number): Promise<Issue> {
     const { targetPolitician, content, title, link } = body;
 
@@ -50,6 +56,7 @@ export class IssueService {
   //   return await this.issueRepository.find();
   // }
 
+  // 그래프 등록을 위한 찬반 투표
   async castVote(voteData: AddVoteDto, issueId: number): Promise<any> {
     const { userId, agree, against } = voteData;
     const newVote = await this.voteRepository.create();
@@ -72,6 +79,7 @@ export class IssueService {
     }
   }
 
+  // 중복 투표 체크
   async hasVoted(userId: number, issueId: number): Promise<boolean> {
     const result = await this.voteRepository
       .createQueryBuilder('vote')
@@ -80,6 +88,24 @@ export class IssueService {
       .getOne();
 
     return result ? true : false;
+  }
+
+  // 그래프에 등록된 이슈에 OXㅅ 투표
+  async castPoll(pollData: AddPollDto, issueId) {
+    const { userId, pro, con, neu } = pollData;
+    const issue = await this.issueRepository.findOneBy({ id: issueId });
+    const poller = await this.userRepository.findOneBy({ id: userId });
+    const newPoll = this.pollRepository.create();
+    newPoll.poller = poller;
+    newPoll.issue = issue;
+    if (pro) newPoll.pro = 1;
+    else if (con) newPoll.con = 1;
+    else newPoll.neu = 1;
+
+    const tribe = poller.tribe;
+    newPoll[`${tribe}`] = 1;
+    const result = await this.pollRepository.save(newPoll);
+    return result;
   }
 
   async remove(id: number): Promise<any> {

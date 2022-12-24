@@ -5,6 +5,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { Issue } from './issue.entity';
 
@@ -15,7 +16,7 @@ export class Poll extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'created_at', comment: '이슈의 투표그래프 등록일' })
+  @CreateDateColumn({ name: 'created_at', comment: '이슈의 투표그래프 등록일' })
   pollDate: Date;
 
   @Column({ default: 0 })
