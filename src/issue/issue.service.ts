@@ -93,6 +93,7 @@ export class IssueService {
   // 그래프에 등록된 이슈에 OXㅅ 투표
   async castPoll(pollData: AddPollDto, issueId) {
     const { userId, pro, con, neu } = pollData;
+    if (pro + con + neu !== 1) throw new Error(' invalid poll');
     const issue = await this.issueRepository.findOneBy({ id: issueId });
     const poller = await this.userRepository.findOneBy({ id: userId });
     const newPoll = this.pollRepository.create();
