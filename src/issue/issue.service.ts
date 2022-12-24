@@ -55,8 +55,10 @@ export class IssueService {
     const newVote = await this.voteRepository.create();
     const voter = await this.userRepository.findOneBy({ id: userId });
     const issue = await this.issueRepository.findOneBy({ id: issueId });
+    const hasVoted = await this.hasVoted(userId, issueId);
+    console.log('hasvoted: ', hasVoted);
 
-    if (this.hasVoted(userId, issueId)) {
+    if (hasVoted) {
       throw new Error('has already voted');
     } else {
       newVote.voter = voter;
@@ -72,11 +74,13 @@ export class IssueService {
   }
 
   async hasVoted(userId: number, issueId: number): Promise<boolean> {
-    const result = this.voteRepository
+    const result = await this.voteRepository
       .createQueryBuilder('vote')
-      .where('user_id = :user_id', { user_id: userId })
-      .andWhere('issue_id= :issue_id', { issue_id: issueId })
+      .where('vote.user_id = :userId ', { userId })
+      .andWhere('vote.issue_id= :issueId', { issueId })
       .getOne();
+    console.log('result: ', result);
+    console.log();
     return result ? true : false;
   }
 
