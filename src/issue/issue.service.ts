@@ -59,11 +59,14 @@ export class IssueService {
   // 그래프 등록을 위한 찬반 투표
   async castVote(voteData: AddVoteDto, issueId: number): Promise<any> {
     const { userId, agree, against } = voteData;
+
+    //각 인스턴스 생성
     const newVote = await this.voteRepository.create();
     const voter = await this.userRepository.findOneBy({ id: userId });
     const issue = await this.issueRepository.findOneBy({ id: issueId });
-    const hasVoted = await this.hasVoted(userId, issueId);
 
+    // 중복 투표 여부 체크
+    const hasVoted = await this.hasVoted(userId, issueId);
     if (hasVoted) {
       throw new Error('has already voted');
     } else {
@@ -75,6 +78,31 @@ export class IssueService {
       agree ? (newVote.agree = 1) : (newVote.against = 1);
 
       const result = await this.voteRepository.save(newVote);
+
+      // isPollActive 상태 변경 필요 여부 확인 및 실행
+      const agreeCount = await this.voteRepository
+        .createQueryBuilder('vote')
+        .where('vote.issue_id = :issueId', { issueId: issueId })
+        .andWhere('vote.agree = :agree', { agree: 1 })
+        .getCount();
+      const againstCount = await this.voteRepository
+        .createQueryBuilder('vote')
+        .where('vote.issue_id = :issueId', { issueId: issueId })
+        .andWhere('vote.against = :against', { against: 1 })
+        .getCount();
+
+      // 테스트위해 임의로 3 설정
+      // [TODO] 75로 변경하기
+      const threshold = 3;
+      if (agreeCount > threshold && agreeCount >= againstCount * 3) {
+        await this.issueRepository
+          .createQueryBuilder()
+          .update(Issue)
+          .set({ isPollActive: true })
+          .where('id = :issueId', { issueId })
+          .execute();
+      }
+
       return result;
     }
   }
@@ -93,19 +121,27 @@ export class IssueService {
   // 그래프에 등록된 이슈에 OXㅅ 투표
   async castPoll(pollData: AddPollDto, issueId) {
     const { userId, pro, con, neu } = pollData;
+
+    //oxㅅ 투표 유효성 검증
     if (pro + con + neu !== 1) throw new Error(' invalid poll');
+
+    // 각 인스턴스 생성
     const issue = await this.issueRepository.findOneBy({ id: issueId });
     const poller = await this.userRepository.findOneBy({ id: userId });
     const newPoll = this.pollRepository.create();
+
+    // 투표 결과 반영
     newPoll.poller = poller;
     newPoll.issue = issue;
     if (pro) newPoll.pro = 1;
     else if (con) newPoll.con = 1;
     else newPoll.neu = 1;
-
     const tribe = poller.tribe;
     newPoll[`${tribe}`] = 1;
+
+    // 투표 결과 저장
     const result = await this.pollRepository.save(newPoll);
+
     return result;
   }
 
