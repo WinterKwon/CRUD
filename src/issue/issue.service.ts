@@ -133,7 +133,8 @@ export class IssueService {
     const { userId, pro, con, neu } = pollData;
 
     //oxㅅ 투표 유효성 검증
-    if (pro + con + neu !== 1) throw new Error(' invalid poll');
+    if ([pro, con, neu].filter((e) => e === 1).length !== 1)
+      throw new Error(' invalid poll');
 
     // 각 인스턴스 생성
     const issue = await this.issueRepository.findOneBy({ id: issueId });
@@ -154,6 +155,9 @@ export class IssueService {
 
     return result;
   }
+
+  //top3
+  
 
   async remove(id: number): Promise<any> {
     const exitedIssue = await this.issueRepository.findOneBy({ id });
