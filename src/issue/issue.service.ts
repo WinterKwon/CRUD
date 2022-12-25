@@ -79,23 +79,16 @@ export class IssueService {
 
       const result = await this.voteRepository.save(newVote);
 
-      // isPollActive 상태 변경 필요 여부 확인 및 실행
-      const agreeCount = await this.voteRepository
-        .createQueryBuilder('vote')
-        .where('vote.issue_id = :issueId', { issueId: issueId })
-        .andWhere('vote.agree = :agree', { agree: 1 })
-        .getCount();
-      const againstCount = await this.voteRepository
-        .createQueryBuilder('vote')
-        .where('vote.issue_id = :issueId', { issueId: issueId })
-        .andWhere('vote.against = :against', { against: 1 })
-        .getCount();
+      // isPollActive 상태 변경 필요한지 체크
+      const [agreeCount, againstCount] = await this.getAgreeAgainstCount(
+        issueId,
+      );
 
       // 테스트위해 임의로 3 설정
       // [TODO] 75로 변경하기
       const threshold = 3;
       if (agreeCount > threshold && agreeCount >= againstCount * 3) {
-        await this.issueRepository
+        return await this.issueRepository
           .createQueryBuilder()
           .update(Issue)
           .set({ isPollActive: true })
@@ -105,6 +98,23 @@ export class IssueService {
 
       return result;
     }
+  }
+
+  // isPollActive 상태 변경
+  async getAgreeAgainstCount(issueId: number) {
+    // isPollActive 상태 변경 필요 여부 확인 및 실행
+    const agreeCount = await this.voteRepository
+      .createQueryBuilder('vote')
+      .where('vote.issue_id = :issueId', { issueId: issueId })
+      .andWhere('vote.agree = :agree', { agree: 1 })
+      .getCount();
+    const againstCount = await this.voteRepository
+      .createQueryBuilder('vote')
+      .where('vote.issue_id = :issueId', { issueId: issueId })
+      .andWhere('vote.against = :against', { against: 1 })
+      .getCount();
+
+    return [agreeCount, againstCount];
   }
 
   // 중복 투표 체크
