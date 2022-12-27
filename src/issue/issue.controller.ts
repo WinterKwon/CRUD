@@ -6,8 +6,10 @@ import {
   Post,
   Res,
   Delete,
+  Get,
 } from '@nestjs/common';
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
+
 import { AddIssueDto } from './dto/issue.add.issue.dto';
 import { AddPollDto } from './dto/issue.add.poll.dto';
 import { AddVoteDto } from './dto/issue.add.vote.dto';
@@ -73,6 +75,34 @@ export class IssueController {
           newPoll,
         });
       }
+    } catch (err) {
+      return response.json({
+        message: err.message,
+      });
+    }
+  }
+
+  @Get('top3')
+  async getTop3Issues(@Res() response) {
+    try {
+      const result = await this.issueService.getTop3Issues();
+      return response
+        .status(HttpStatus.OK)
+        .json({ message: 'found successfully', result });
+    } catch (err) {
+      return response.json({
+        message: err.message,
+      });
+    }
+  }
+
+  @Get('detail')
+  async getIssues4Graph(@Res() response) {
+    try {
+      const result = await this.issueService.getIssues4Graph();
+      return response
+        .status(HttpStatus.OK)
+        .json({ message: 'found successfully', result });
     } catch (err) {
       return response.json({
         message: err.message,
