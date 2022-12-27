@@ -157,6 +157,41 @@ export class IssueService {
     return result;
   }
 
+  //그래프 등록임박 top3
+  async getTop3Issues() {
+    const issues = await this.issueRepository
+      .createQueryBuilder('issue')
+      .leftJoinAndSelect('issue.votes', 'vote')
+      .where('issue.isVoteActive = :isVoteActive', { isVoteActive: true })
+      .groupBy('vote.issue')
+      .orderBy('COUNT(vote.agree - vote.against)')
+      .limit(3)
+      .getMany();
+    return issues;
+  }
+
+  // 정치인 상세 페이지 그래프용 이슈 10개
+  async getIssues4Graph() {
+    const issues = await this.issueRepository
+      .createQueryBuilder('issue')
+      .leftJoinAndSelect('issue.polls', 'poll')
+      .where('issue.isPollActive = :isPollActive', { isPollActive: true })
+      .groupBy('poll.issue')
+      .addSelect('SUM(poll.tiger)', 'totalTiger')
+      .addSelect('SUM(poll.hippo)', 'totalHippo')
+      .addSelect('SUM(poll.elephant)', 'totalHippo')
+      .addSelect('SUM(poll.dinosaur)', 'totalDino')
+      .addSelect('SUM(poll.lion)', 'totalLion')
+      .addSelect('SUM(poll.pro)', 'totalPro')
+      .addSelect('SUM(poll.con)', 'totalCon')
+      .addSelect('SUM(poll.neu)', 'totalNeu')
+      .addSelect('SUM(poll.pro) - SUM(poll.con)', 'total')
+      .orderBy('poll.pollDate', 'DESC')
+      .limit(10)
+      .getRawMany();
+    return issues;
+  }
+
   async remove(id: number): Promise<any> {
     const exitedIssue = await this.issueRepository.findOneBy({ id });
     if (!exitedIssue) {
