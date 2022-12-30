@@ -14,6 +14,7 @@ import { Register } from './entities/register.entity';
 import { Poll } from './entities/poll.entity';
 import { RegisterProCon } from './entities/registerProCon.entity';
 import { PollResult } from './entities/pollResult.entitiy';
+import { Vote } from './entities/vote.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,6 +37,7 @@ import { PollResult } from './entities/pollResult.entitiy';
         Poll,
         PollResult,
         RegisterProCon,
+        Vote,
       ],
       synchronize: true,
       logging: true,
