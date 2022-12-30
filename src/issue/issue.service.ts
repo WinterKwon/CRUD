@@ -5,6 +5,7 @@ import { Politician } from 'src/entities/politician.entity';
 import { Poll } from 'src/entities/poll.entity';
 import { User } from 'src/entities/user.entity';
 import { Vote } from 'src/entities/vote.entity';
+import { PageOptionDto } from 'src/utils/pagination.dto';
 import { Repository } from 'typeorm';
 import { AddIssueDto } from './dto/issue.add.issue.dto';
 import { AddPollDto } from './dto/issue.add.poll.dto';
@@ -134,7 +135,11 @@ export class IssueService {
     const { userId, pro, con, neu } = pollData;
 
     //oxㅅ 투표 유효성 검증
-    if ([pro, con, neu].filter((e) => e === 1).length !== 1)
+    if (
+      [pro, con, neu].filter((value) => {
+        return value !== undefined && value !== null;
+      }).length !== 1
+    )
       throw new Error(' invalid poll');
 
     // 각 인스턴스 생성
@@ -170,8 +175,23 @@ export class IssueService {
     return issues;
   }
 
-  // 정치인 상세 페이지 그래프용 이슈 10개
-  async getIssues4Graph() {
+  //그래프 미등록 찬반 투표 오픈 이슈 페이지네이션
+  async getIssuesForVote(targetPolitician: number, pageOption: PageOptionDto) {
+    const issues = await this.issueRepository.find({
+      relations: {
+        politician: true,
+      },
+      order: {
+        issueDate: 'DESC',
+      },
+      skip: pageOption.skip(),
+      take: pageOption.perPage,
+    });
+    return issues;
+  }
+
+  // 정치인 상세 페이지 그래프용 이슈 10개 -> 그래프페이지네이션 40개
+  async getIssuesForGraph() {
     const issues = await this.issueRepository
       .createQueryBuilder('issue')
       .leftJoinAndSelect('issue.polls', 'poll')
@@ -185,10 +205,26 @@ export class IssueService {
       .addSelect('SUM(poll.pro)', 'totalPro')
       .addSelect('SUM(poll.con)', 'totalCon')
       .addSelect('SUM(poll.neu)', 'totalNeu')
+      .addSelect('SUM(poll.pro) - SUM(poll.con)', 'score')
+      .orderBy('poll.pollDate', 'DESC')
+      .limit(40)
+      .getRawMany();
+    return issues;
+  }
+
+  //전체 이슈 조회
+  //정치인별로 구별 필요하므로 정치인 서비스에서 매칭 작업해야함
+  // 이슈에서는 정치인 그룹별로 모든 이슈 조회까지만
+  async getAllActiveIssues() {
+    const issues = await this.issueRepository
+      .createQueryBuilder('issue')
+      .leftJoinAndSelect('issue.polls', 'poll')
+      .leftJoinAndSelect('issue.politician', 'politician')
+      .where('issue.isPollActive = :isPollActive', { isPollActive: true })
+      .groupBy('issue.politician')
       .addSelect('SUM(poll.pro) - SUM(poll.con)', 'total')
       .orderBy('poll.pollDate', 'DESC')
-      .limit(10)
-      .getRawMany();
+      .getMany();
     return issues;
   }
 

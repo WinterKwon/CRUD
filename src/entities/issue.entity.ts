@@ -6,12 +6,10 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Politician } from './politician.entity';
 import { Poll } from './poll.entity';
-import { Register } from './register.entity';
 import { User } from './user.entity';
 import { Vote } from './vote.entity';
 
