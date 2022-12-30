@@ -31,6 +31,6 @@ export class Register extends BaseEntity {
   @OneToOne(() => RegisterProCon)
   regiProCon: RegisterProCon;
 
-  @OneToOne(() => Issue, (issue) => issue.register)
+  @OneToOne(() => Issue, (issue) => issue.polls)
   issue: Issue;
 }
