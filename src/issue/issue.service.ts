@@ -181,6 +181,11 @@ export class IssueService {
       relations: {
         politician: true,
       },
+      where: {
+        politician: {
+          id: targetPolitician,
+        },
+      },
       order: {
         issueDate: 'DESC',
       },
