@@ -81,7 +81,7 @@ export class UserService {
   async remove(id: number): Promise<any> {
     const existedUser = await this.userRepository.findOneBy({ id });
     if (!existedUser) {
-      return 'could not find such a user';
+      throw new Error('could not find such a user');
     }
     await this.userRepository.delete(id);
     return `successfully deleted userID ${id}`;

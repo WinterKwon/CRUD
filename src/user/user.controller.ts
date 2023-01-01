@@ -86,11 +86,15 @@ export class UserController {
 
   @Delete(':id')
   async remove(@Param('id') id: number, @Res() response) {
-    const result = await this.userService.remove(id);
-
-    //삭제 실패시 status 코드 반영하기
-    return response.status(HttpStatus.OK).json({
-      message: result,
-    });
+    try {
+      const result = await this.userService.remove(id);
+      return response.status(HttpStatus.OK).json({
+        message: result,
+      });
+    } catch (err) {
+      return response
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ message: err.message });
+    }
   }
 }
