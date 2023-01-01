@@ -23,7 +23,6 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     done: any,
   ) {
     try {
-      // console.log(profile);
       const kakaoEmail = profile._json && profile._json.kakao_account.email;
       const { nickname } = profile._json && profile._json.properties;
       const kakaoPassword = 'kakaoPassword';
@@ -32,14 +31,13 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
         email: kakaoEmail,
         password: kakaoPassword,
       };
-      console.log('profile: ', profile);
-      console.log(userProfile);
+
       const user = await this.authService.validateUser(kakaoEmail);
 
       if (!user) {
         await this.authService.addUser(userProfile);
-        // console.log(result);
-        const user = await this.authService.validateUser(kakaoEmail);
+        const onceToken = await this.authService.onceToken(userProfile);
+        return { onceToken, type: 'once_token' };
       }
 
       const accessToken = await this.authService.createLoginToken(user);

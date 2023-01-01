@@ -20,7 +20,7 @@ export class AuthController {
     // res.cookie('access_token', req.user.access_token);
     // res.cookie('refresh_token', req.user.refresh_token);
     // res.redirect(`http://localhost:5173/`);
-    console.log(req.user);
+    // console.log(req.user);
     res.redirect(
       `${process.env.CLIENT_HOST}?access=${req.user.accessToken}&refresh=${req.user.refreshToken}`,
     );

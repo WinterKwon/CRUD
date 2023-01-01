@@ -59,6 +59,18 @@ export class AuthService {
     return refreshToken;
   }
 
+  async onceToken(userProfile) {
+    const payload = {
+      email: userProfile.email,
+      userToken: 'oncetoken',
+    };
+
+    return this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET_KEY,
+      expiresIn: '60m',
+    });
+  }
+
   async validateToken(token: string) {
     const result = await this.jwtService.verify(token, {
       secret: process.env.JWT_SECRET_KEY,
