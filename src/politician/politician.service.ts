@@ -20,6 +20,20 @@ export class PoliticianService {
     return await this.politicianRepository.find();
   }
 
+  async getAllPoliticians4Graph() {
+    const result = await this.politicianRepository
+      .createQueryBuilder('politician')
+      .leftJoinAndSelect('politician.issues', 'issue')
+      .leftJoinAndSelect('issue.polls', 'poll')
+      .where('issue.isPollActive = :isPollActive', { isPollActive: true })
+      .addSelect('SUM(poll.pro) - SUM(poll.con)', 'total')
+      .groupBy('politician.id')
+      .orderBy({ 'poll.pollDate': 'DESC', total: 'DESC' })
+      .getMany();
+
+    return result;
+  }
+
   async getOnePoliticianById(id: number): Promise<Politician> {
     return await this.politicianRepository.findOneBy({ id });
   }
@@ -40,6 +54,18 @@ export class PoliticianService {
       return await this.politicianRepository.findOneBy({ id });
     }
     throw new BadRequestException();
+  }
+
+  async remove(politicianId): Promise<any> {
+    const existedPolitician = await this.politicianRepository.findOneBy({
+      id: politicianId,
+    });
+
+    if (!existedPolitician) {
+      throw new Error('could not find such a politician');
+    }
+    await this.politicianRepository.delete({ id: politicianId });
+    return `successfully deleted politicianID ${politicianId}`;
   }
 
   // async getPoliCountByIssue(id:number): Promise<

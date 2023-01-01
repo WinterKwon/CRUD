@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Res,
   Patch,
+  Delete,
   UseFilters,
 } from '@nestjs/common';
 import { Body, Param, Post, Req } from '@nestjs/common/decorators';
@@ -22,7 +23,8 @@ export class PoliticianController {
   async getPoliticiansMainpage(@Res() response): Promise<Array<any>> {
     try {
       // 그래프에 등록된 이슈의 부족별 투표 결과까지 40개. 정렬은 이슈등록날짜별로, 토탈 투표수 descending으로
-      //   const
+      const result = await this.politicianService.getAllPoliticians4Graph();
+      return response.json(result);
     } catch (err) {
       return response.status(err.status).json(err.response);
     }
@@ -105,6 +107,18 @@ export class PoliticianController {
         message: 'failed to update politician data',
         err,
       });
+    }
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') politicianId: number, @Res() response) {
+    try {
+      const result = await this.politicianService.remove(politicianId);
+      return response.status(HttpStatus.OK).json({ message: result });
+    } catch (err) {
+      return response
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ message: err.message });
     }
   }
 }
