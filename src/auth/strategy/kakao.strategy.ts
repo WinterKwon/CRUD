@@ -36,14 +36,14 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
 
       if (!user) {
         await this.authService.addUser(userProfile);
-        const onceToken = await this.authService.onceToken(userProfile);
-        return { onceToken, type: 'once_token' };
+        const once_token = await this.authService.onceToken(userProfile);
+        return { once_token, type: 'once_token' };
+      } else {
+        const access_token = await this.authService.createLoginToken(user);
+        const refresh_token = await this.authService.createRefreshToken(user);
+
+        return { access_token, refresh_token, type: 'login' };
       }
-
-      const accessToken = await this.authService.createLoginToken(user);
-      const refreshToken = await this.authService.createRefreshToken(user);
-
-      return { accessToken, refreshToken, type: 'login' };
     } catch (error) {
       done(error);
     }
