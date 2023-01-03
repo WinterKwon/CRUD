@@ -10,3 +10,21 @@ export class PageOptionDto {
     return (this.pageNum - 1) * this.perPage;
   }
 }
+
+export class PageMeta {
+  readonly itemCount: number;
+  readonly pageNum: number;
+  readonly perPage: number;
+  readonly pageCount: number;
+  readonly hasPreviousPage: boolean;
+  readonly hasNextPage: boolean;
+
+  constructor(pageNum: number, perPage: number, count: number) {
+    this.itemCount = count;
+    this.pageNum = pageNum;
+    this.perPage = perPage;
+    this.pageCount = Math.ceil(this.itemCount / this.perPage);
+    this.hasPreviousPage = this.pageNum > 1;
+    this.hasNextPage = this.pageNum < this.pageCount;
+  }
+}

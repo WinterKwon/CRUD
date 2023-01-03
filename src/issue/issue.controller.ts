@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
 import { response } from 'express';
+import { PageMeta } from 'src/utils/pagination.dto';
 
 import { AddIssueDto } from './dto/issue.add.issue.dto';
 import { AddPollDto } from './dto/issue.add.poll.dto';
@@ -95,7 +96,17 @@ export class IssueController {
         pageOptions,
       );
 
-      return response.json({ data: issues });
+      const count = await this.issueService.getAllVoteActiveIssues(
+        targetPolitician,
+      );
+
+      const meta = new PageMeta(
+        pageOptions.pageNum,
+        pageOptions.perPage,
+        count,
+      );
+
+      return response.json({ data: issues, meta: meta });
     } catch (err) {
       return response.status(HttpStatus.BAD_REQUEST).json({
         message: err.message,

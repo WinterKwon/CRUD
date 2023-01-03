@@ -189,7 +189,7 @@ export class IssueService {
     return issues;
   }
 
-  //그래프 미등록 찬반 투표 오픈 이슈 페이지네이션
+  //그래프등록에 대한 찬반 투표 isVoteActive : true 이슈 페이지네이션
   async getIssuesForVote(targetPolitician: number, pageOptions: PageOptionDto) {
     const top3 = await this.getTop3IssuesByPolitician(targetPolitician);
     const top3Issues = Array.from(top3).map((e) => e.issue_id);
@@ -220,6 +220,24 @@ export class IssueService {
     console.log(pageOptions.skip);
     console.log(pageOptions.perPage);
     return issues;
+  }
+
+  //top3 제외 isVoteActive:true인 이슈들- 페이지네이션용 토탈페이지
+  async getAllVoteActiveIssues(targetPolitician: number) {
+    const top3 = await this.getTop3IssuesByPolitician(targetPolitician);
+    const top3Issues = Array.from(top3).map((e) => e.issue_id);
+    const count = await this.issueRepository
+      .createQueryBuilder('issue')
+      .leftJoinAndSelect('issue.politician', 'politician')
+      .leftJoinAndSelect('issue.votes', 'vote')
+      .where('issue.isVoteActive = :isVoteActive', { isVoteActive: true })
+      .andWhere('politician.id = :politician', {
+        politician: targetPolitician,
+      })
+      .andWhere('issue.id NOT IN (:...top3)', { top3: top3Issues })
+      .getCount();
+
+    return count;
   }
 
   // 정치인 상세 페이지 그래프용 이슈 10개 -> 그래프페이지네이션 40개
