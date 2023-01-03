@@ -44,6 +44,7 @@ export class IssueController {
     }
   }
 
+  // 그래프 등록에 대한 찬반 투표
   @Post(':id/vote')
   async createVote(
     @Body() voteData: AddVoteDto,
@@ -65,6 +66,7 @@ export class IssueController {
     }
   }
 
+  //oxㅅ 투표
   @Post(':id/poll')
   async createPoll(
     @Body() pollData: AddPollDto,
@@ -86,6 +88,7 @@ export class IssueController {
     }
   }
 
+  // 정치인별 미등록 이슈 중 top3제외 페이지네이션용 조회
   @Get()
   async getIssues(@Query() issueQuery: QueryIssueDto, @Res() response) {
     try {
@@ -96,7 +99,7 @@ export class IssueController {
         pageOptions,
       );
 
-      const count = await this.issueService.getAllVoteActiveIssues(
+      const count = await this.issueService.getVoteActiveIssuesByPolitician(
         targetPolitician,
       );
 
@@ -114,6 +117,7 @@ export class IssueController {
     }
   }
 
+  // 미등록 이슈중 등록임박 top3 조회
   @Get(':id/top3')
   async getTop3Issues(@Param('id') politicianId: number, @Res() response) {
     try {
@@ -134,10 +138,16 @@ export class IssueController {
     }
   }
 
-  @Get('graph')
-  async getIssuesForGraph(@Res() response) {
+  // 정치인별 그래프용 이슈 조회
+  @Get(':id/graph')
+  async getIssuesForGraph(
+    @Param('id') targetPolitician: number,
+    @Res() response,
+  ) {
     try {
-      const result = await this.issueService.getIssuesForGraph();
+      const result = await this.issueService.getPollActiveIssuesByPolitician(
+        targetPolitician,
+      );
       return response
         .status(HttpStatus.OK)
         .json({ message: 'found successfully', result });
@@ -148,7 +158,7 @@ export class IssueController {
     }
   }
 
-  // 정치인 구분 없는 모든 이슈 조회임
+  // 정치인 구분 없는 모든 oxㅅ 투표 가능 이슈 조회
   @Get('all')
   async getAllPollActiveIssues(@Res() response) {
     try {
@@ -161,6 +171,7 @@ export class IssueController {
     }
   }
 
+  // 이슈별 찬반 투표 결과 조회
   @Get(':id/vote-result')
   async getAllAgreeAgainstByIssue(
     @Param('id') issueId: number,

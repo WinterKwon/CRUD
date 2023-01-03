@@ -223,7 +223,7 @@ export class IssueService {
   }
 
   //top3 제외 isVoteActive:true인 이슈들- 페이지네이션용 토탈페이지
-  async getAllVoteActiveIssues(targetPolitician: number) {
+  async getVoteActiveIssuesByPolitician(targetPolitician: number) {
     const top3 = await this.getTop3IssuesByPolitician(targetPolitician);
     const top3Issues = Array.from(top3).map((e) => e.issue_id);
     const count = await this.issueRepository
@@ -240,8 +240,8 @@ export class IssueService {
     return count;
   }
 
-  // 정치인 상세 페이지 그래프용 이슈 40개 
-  async getIssuesForGraph() {
+  // 정치인 상세 페이지 그래프용 이슈 isPollActive: true 40개
+  async getPollActiveIssuesByPolitician(targetPolitician: number) {
     const issues = await this.issueRepository
       .createQueryBuilder('issue')
       .leftJoinAndSelect('issue.polls', 'poll')
@@ -260,10 +260,10 @@ export class IssueService {
         'SUM(poll.pro) - SUM(poll.con) as score',
       ])
       .where('issue.isPollActive = :isPollActive', { isPollActive: true })
-      // .andWhere('issue.politician = :politician', {
-      //   politician: targetPolitician,
-      // })
-      .groupBy('issue.politician')
+      .andWhere('issue.politician = :politician', {
+        politician: targetPolitician,
+      })
+      // .groupBy('issue.politician')
       .addGroupBy('poll.issue')
       .orderBy('issue.politician')
       .addOrderBy('poll.pollDate', 'DESC')
@@ -273,8 +273,6 @@ export class IssueService {
   }
 
   //그래프에서 투표할 수 있는 (isPollActive : true)전체 이슈 조회
-  //정치인별로 구별 필요하므로 정치인 서비스에서 매칭 작업해야함
-  // 이슈에서는 정치인 그룹별로 모든 이슈 조회까지만
   async getAllPollActiveIssues() {
     const issues = await this.issueRepository
       .createQueryBuilder('issue')
