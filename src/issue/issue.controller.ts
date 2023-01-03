@@ -89,7 +89,7 @@ export class IssueController {
   async getIssues(@Query() issueQuery: QueryIssueDto, @Res() response) {
     try {
       const { targetPolitician, regiStatus, ranked, pageOptions } = issueQuery;
-
+      console.log('pageoptions: ', pageOptions);
       const issues = await this.issueService.getIssuesForVote(
         targetPolitician,
         pageOptions,

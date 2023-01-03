@@ -190,7 +190,7 @@ export class IssueService {
   }
 
   //그래프 미등록 찬반 투표 오픈 이슈 페이지네이션
-  async getIssuesForVote(targetPolitician: number, pageOption: PageOptionDto) {
+  async getIssuesForVote(targetPolitician: number, pageOptions: PageOptionDto) {
     const top3 = await this.getTop3IssuesByPolitician(targetPolitician);
     const top3Issues = Array.from(top3).map((e) => e.issue_id);
     const issues = await this.issueRepository
@@ -208,15 +208,17 @@ export class IssueService {
         'sum(vote.against) as against',
       ])
       .where('issue.isVoteActive = :isVoteActive', { isVoteActive: true })
-      .andWhere('issue.politician = :politician', {
+      .andWhere('politician.id = :politician', {
         politician: targetPolitician,
       })
       .andWhere('issue.id NOT IN (:...top3)', { top3: top3Issues })
+      .groupBy('issue.id')
       .orderBy('issue.issueDate', 'DESC')
-      .skip(pageOption.skip())
-      .take(pageOption.perPage)
+      .offset(pageOptions.skip)
+      .limit(pageOptions.perPage)
       .getRawMany();
-
+    console.log(pageOptions.skip);
+    console.log(pageOptions.perPage);
     return issues;
   }
 
