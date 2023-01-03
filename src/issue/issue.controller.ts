@@ -9,15 +9,11 @@ import {
   Get,
   Query,
 } from '@nestjs/common';
-import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
-import { response } from 'express';
 import { PageMeta } from 'src/utils/pagination.dto';
-
 import { AddIssueDto } from './dto/issue.add.issue.dto';
 import { AddPollDto } from './dto/issue.add.poll.dto';
 import { AddVoteDto } from './dto/issue.add.vote.dto';
 import { QueryIssueDto } from './dto/issue.pagination.dto';
-
 import { IssueService } from './issue.service';
 
 @Controller('issue')
@@ -191,11 +187,15 @@ export class IssueController {
 
   @Delete(':id')
   async remove(@Param('id') id: number, @Res() response) {
-    const result = await this.issueService.remove(id);
-
-    //삭제 실패시 status 코드 반영하기
-    return response.status(HttpStatus.OK).json({
-      message: result,
-    });
+    try {
+      const result = await this.issueService.remove(id);
+      return response.status(HttpStatus.OK).json({
+        message: result,
+      });
+    } catch (err) {
+      return response.status(HttpStatus.BAD_REQUEST).json({
+        message: 'failed to delete',
+      });
+    }
   }
 }
