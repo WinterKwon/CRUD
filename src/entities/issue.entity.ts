@@ -1,3 +1,4 @@
+import { text } from 'stream/consumers';
 import {
   BaseEntity,
   Column,
@@ -21,7 +22,7 @@ export class Issue extends BaseEntity {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ type: 'text' })
   content: string;
 
   @Column({ nullable: true })
@@ -36,7 +37,7 @@ export class Issue extends BaseEntity {
   @Column({ default: false })
   isPollActive: boolean;
 
-  @OneToMany(() => Vote, (vote) => vote.issue)
+  @OneToMany(() => Vote, (vote) => vote.issue, { eager: true })
   votes: Vote[];
 
   @OneToMany(() => Poll, (poll) => poll.issue)
