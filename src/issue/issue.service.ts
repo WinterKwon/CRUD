@@ -240,23 +240,33 @@ export class IssueService {
     return count;
   }
 
-  // 정치인 상세 페이지 그래프용 이슈 10개 -> 그래프페이지네이션 40개
+  // 정치인 상세 페이지 그래프용 이슈 40개 
   async getIssuesForGraph() {
     const issues = await this.issueRepository
       .createQueryBuilder('issue')
       .leftJoinAndSelect('issue.polls', 'poll')
+      .select([
+        'issue.politician as targetPolitician',
+        'issue.id as issueId',
+        'issue.title as title',
+        'issue.content as content',
+        'SUM(poll.tiger) as tiger',
+        'SUM(poll.hippo) as hippo',
+        'SUM(poll.dinosaur) as dinosaur',
+        'SUM(poll.lion) as lion',
+        'SUM(poll.pro) as pro',
+        'SUM(poll.con) as con',
+        'SUM(poll.neu) as neu',
+        'SUM(poll.pro) - SUM(poll.con) as score',
+      ])
       .where('issue.isPollActive = :isPollActive', { isPollActive: true })
-      .groupBy('poll.issue')
-      .addSelect('SUM(poll.tiger)', 'totalTiger')
-      .addSelect('SUM(poll.hippo)', 'totalHippo')
-      .addSelect('SUM(poll.elephant)', 'totalHippo')
-      .addSelect('SUM(poll.dinosaur)', 'totalDino')
-      .addSelect('SUM(poll.lion)', 'totalLion')
-      .addSelect('SUM(poll.pro)', 'totalPro')
-      .addSelect('SUM(poll.con)', 'totalCon')
-      .addSelect('SUM(poll.neu)', 'totalNeu')
-      .addSelect('SUM(poll.pro) - SUM(poll.con)', 'score')
-      .orderBy('poll.pollDate', 'DESC')
+      // .andWhere('issue.politician = :politician', {
+      //   politician: targetPolitician,
+      // })
+      .groupBy('issue.politician')
+      .addGroupBy('poll.issue')
+      .orderBy('issue.politician')
+      .addOrderBy('poll.pollDate', 'DESC')
       .limit(40)
       .getRawMany();
     return issues;
