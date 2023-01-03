@@ -6,7 +6,7 @@ import { Poll } from 'src/entities/poll.entity';
 import { User } from 'src/entities/user.entity';
 import { Vote } from 'src/entities/vote.entity';
 import { PageOptionDto } from 'src/utils/pagination.dto';
-import { Repository } from 'typeorm';
+import { In, Not, NotBrackets, Repository } from 'typeorm';
 import { AddIssueDto } from './dto/issue.add.issue.dto';
 import { AddPollDto } from './dto/issue.add.poll.dto';
 import { AddVoteDto } from './dto/issue.add.vote.dto';
@@ -53,10 +53,6 @@ export class IssueService {
     return result;
   }
 
-  //async getAllIssues():Promise<Issue[]> {
-  //   return await this.issueRepository.find();
-  // }
-
   // 그래프 등록을 위한 찬반 투표
   async castVote(voteData: AddVoteDto, issueId: number): Promise<any> {
     const { userId, agree, against } = voteData;
@@ -70,24 +66,33 @@ export class IssueService {
     const hasVoted = await this.hasVoted(userId, issueId);
     if (hasVoted) {
       throw new Error('has already voted');
-    } else {
-      newVote.voter = voter;
-      newVote.issue = issue;
-      if (agree === against) {
-        throw new BadRequestException();
-      }
-      agree ? (newVote.agree = 1) : (newVote.against = 1);
+      return;
+    }
 
-      const result = await this.voteRepository.save(newVote);
+    newVote.voter = voter;
+    newVote.issue = issue;
+    if (agree === against) {
+      throw new BadRequestException('invalid vote');
+    }
+    agree ? (newVote.agree = 1) : (newVote.against = 1);
 
-      // isPollActive 상태 변경 필요한지 체크
-      const [agreeCount, againstCount] = await this.getAgreeAgainstCount(
+    const result = await this.voteRepository.save(newVote);
+
+    // isPollActive 상태 변경 필요한지 체크
+    // 테스트위해 임의로 임계점 3 설정
+    // [TODO] threshold = 75로 변경하기
+    await this.setVotePollStatus(issueId, 3);
+
+    return result;
+  }
+
+  // vote, poll 상태 변경 함수 분리
+  // 찬성이 75이상, 반대의 3배 이상이면 투표 가능 상태로 변경
+  async setVotePollStatus(issueId: number, threshold: number) {
+    try {
+      const { agreeCount, againstCount } = await this.getAgreeAgainstCount(
         issueId,
       );
-
-      // 테스트위해 임의로 3 설정
-      // [TODO] threshold = 75로 변경하기
-      const threshold = 3;
       if (agreeCount > threshold && agreeCount >= againstCount * 3) {
         return await this.issueRepository
           .createQueryBuilder()
@@ -96,14 +101,13 @@ export class IssueService {
           .where('id = :issueId', { issueId })
           .execute();
       }
-
-      return result;
+    } catch (err) {
+      throw new Error('failed to update vote poll status');
     }
   }
 
   // 이슈 찬반 투표 집계
   async getAgreeAgainstCount(issueId: number) {
-    // isPollActive 상태 변경 필요 여부 확인 및 실행
     const agreeCount = await this.voteRepository
       .createQueryBuilder('vote')
       .where('vote.issue_id = :issueId', { issueId: issueId })
@@ -116,7 +120,11 @@ export class IssueService {
       .andWhere('vote.against = :against', { against: 1 })
       .getCount();
 
-    return [agreeCount, againstCount];
+    return {
+      issueId: issueId,
+      agreeCount: agreeCount,
+      againstCount: againstCount,
+    };
   }
 
   // 중복 투표 체크
@@ -131,7 +139,7 @@ export class IssueService {
   }
 
   // 그래프에 등록된 이슈에 OXㅅ 투표
-  async castPoll(pollData: AddPollDto, issueId) {
+  async castPoll(pollData: AddPollDto, issueId: number) {
     const { userId, pro, con, neu } = pollData;
 
     //oxㅅ 투표 유효성 검증
@@ -163,35 +171,52 @@ export class IssueService {
   }
 
   //그래프 등록임박 top3
-  async getTop3Issues() {
+  async getTop3IssuesByPolitician(politicianId: number) {
     const issues = await this.issueRepository
       .createQueryBuilder('issue')
       .leftJoinAndSelect('issue.votes', 'vote')
+      .leftJoinAndSelect('issue.politician', 'politician')
+      .select(['issue.id', 'issue.title', 'issue.content', 'issue.issueDate'])
       .where('issue.isVoteActive = :isVoteActive', { isVoteActive: true })
+      .andWhere('issue.politician = :politician', { politician: politicianId })
       .groupBy('vote.issue')
-      .orderBy('COUNT(vote.agree - vote.against)')
+      .addSelect('SUM(vote.agree)', 'agree')
+      .addSelect('SUM(vote.against)', 'against')
+      .orderBy('SUM(vote.agree) - SUM(vote.against)', 'DESC')
       .limit(3)
-      .getMany();
+      .getRawMany();
+
     return issues;
   }
 
   //그래프 미등록 찬반 투표 오픈 이슈 페이지네이션
   async getIssuesForVote(targetPolitician: number, pageOption: PageOptionDto) {
-    const issues = await this.issueRepository.find({
-      relations: {
-        politician: true,
-      },
-      where: {
-        politician: {
-          id: targetPolitician,
-        },
-      },
-      order: {
-        issueDate: 'DESC',
-      },
-      skip: pageOption.skip(),
-      take: pageOption.perPage,
-    });
+    const top3 = await this.getTop3IssuesByPolitician(targetPolitician);
+    const top3Issues = Array.from(top3).map((e) => e.issue_id);
+    const issues = await this.issueRepository
+      .createQueryBuilder('issue')
+      .leftJoinAndSelect('issue.politician', 'politician')
+      .leftJoinAndSelect('issue.votes', 'vote')
+      .select([
+        'issue.id',
+        'issue.title as title',
+        'issue.content as content',
+        'issue.link as link',
+        'issue.issueDate as issueDate',
+        'politician.id',
+        'sum(vote.agree) as agree',
+        'sum(vote.against) as against',
+      ])
+      .where('issue.isVoteActive = :isVoteActive', { isVoteActive: true })
+      .andWhere('issue.politician = :politician', {
+        politician: targetPolitician,
+      })
+      .andWhere('issue.id NOT IN (:...top3)', { top3: top3Issues })
+      .orderBy('issue.issueDate', 'DESC')
+      .skip(pageOption.skip())
+      .take(pageOption.perPage)
+      .getRawMany();
+
     return issues;
   }
 
@@ -217,10 +242,10 @@ export class IssueService {
     return issues;
   }
 
-  //전체 이슈 조회
+  //그래프에서 투표할 수 있는 (isPollActive : true)전체 이슈 조회
   //정치인별로 구별 필요하므로 정치인 서비스에서 매칭 작업해야함
   // 이슈에서는 정치인 그룹별로 모든 이슈 조회까지만
-  async getAllActiveIssues() {
+  async getAllPollActiveIssues() {
     const issues = await this.issueRepository
       .createQueryBuilder('issue')
       .leftJoinAndSelect('issue.polls', 'poll')

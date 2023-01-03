@@ -58,7 +58,7 @@ export class IssueController {
         });
       }
     } catch (err) {
-      return response.json({
+      return response.status(HttpStatus.BAD_REQUEST).json({
         message: err.message,
       });
     }
@@ -97,27 +97,33 @@ export class IssueController {
 
       return response.json({ data: issues });
     } catch (err) {
-      return response.status(err.status).json({
+      return response.status(HttpStatus.BAD_REQUEST).json({
         message: err.message,
       });
     }
   }
 
-  @Get('top3')
-  async getTop3Issues(@Res() response) {
+  @Get(':id/top3')
+  async getTop3Issues(@Param('id') politicianId: number, @Res() response) {
     try {
-      const result = await this.issueService.getTop3Issues();
-      return response
-        .status(HttpStatus.OK)
-        .json({ message: 'found successfully', result });
+      const result = await this.issueService.getTop3IssuesByPolitician(
+        politicianId,
+      );
+      const len = result.length;
+      return response.status(HttpStatus.OK).json({
+        message: 'found successfully',
+        targetPolitician: politicianId,
+        result,
+        len,
+      });
     } catch (err) {
-      return response.json({
+      return response.status(HttpStatus.BAD_REQUEST).json({
         message: err.message,
       });
     }
   }
 
-  @Get('detail')
+  @Get('graph')
   async getIssuesForGraph(@Res() response) {
     try {
       const result = await this.issueService.getIssuesForGraph();
@@ -133,14 +139,31 @@ export class IssueController {
 
   // 정치인 구분 없는 모든 이슈 조회임
   @Get('all')
-  async getALlActiveIssues(@Res() response) {
+  async getAllPollActiveIssues(@Res() response) {
     try {
-      const result = await this.issueService.getAllActiveIssues();
+      const result = await this.issueService.getAllPollActiveIssues();
       return response.status(HttpStatus.OK).json(result);
     } catch (err) {
       return response.json({
         message: err.message,
       });
+    }
+  }
+
+  @Get(':id/vote-result')
+  async getAllAgreeAgainstByIssue(
+    @Param('id') issueId: number,
+    @Res() response,
+  ) {
+    try {
+      const result = await this.issueService.getAgreeAgainstCount(issueId);
+      return response
+        .status(HttpStatus.OK)
+        .json({ message: 'found successfully', result });
+    } catch (err) {
+      return response
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ message: err.message });
     }
   }
 
