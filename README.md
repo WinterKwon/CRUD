@@ -65,29 +65,29 @@ $ npm run start:dev
 
 **1️⃣ entity 작성과 entity간 관계 설정**
 
-    mongoose로 schema와 model을 만들어 모델링을 했다면 RDB를 사용하면서는 entity와 repository를 이용했다. 따라서 @Prop으로 관리하던 칼럼들이 @Column 데코레이터를 가지게 되고 1:1, 1:N, M:N 같은 테이블 간 관계 설정을 해주게 된다. 
+  mongoose로 schema와 model을 만들어 모델링을 했다면 RDB를 사용하면서는 entity와 repository를 이용했다. 따라서 @Prop으로 관리하던 칼럼들이 @Column 데코레이터를 가지게 되고 1:1, 1:N, M:N 같은 테이블 간 관계 설정을 해주게 된다. 
 
 **2️⃣ 두 가지 투표 방식 구분 매서드명 수정**
 
-    유저는 
+  유저는 
 
-    1) 새로운 정치 이슈를 등록하거나
+  1) 새로운 정치 이슈를 등록하거나
 
-    2) 기존 이슈에 대해 정치인 그래프로의 반영 여부에 대한 찬반 투표를 한다.
+  2) 기존 이슈에 대해 정치인 그래프로의 반영 여부에 대한 찬반 투표를 한다.
 
-    3) 찬반 투표가 일정 조건을 충족하면 그래프에 등록되고 OXㅅ 투표를 하게된다.
+  3) 찬반 투표가 일정 조건을 충족하면 그래프에 등록되고 OXㅅ 투표를 하게된다.
 
     
 
-    기존 코드에서 이슈 등록 부분은 issue, regi(ster)란 단어를 활용하고
-    OXㅅ 투표에는 Poll을 활용했다. 그리고 찬반, OXㅅ는 구분없이 모두 pro,con이란 단어를 사용했다.
+  기존 코드에서 이슈 등록 부분은 issue, regi(ster)란 단어를 활용하고
+  OXㅅ 투표에는 Poll을 활용했다. 그리고 찬반, OXㅅ는 구분없이 모두 pro,con이란 단어를 사용했다.
 
-    리팩토링에서는 이슈의 등록, 찬반 투표, OXㅅ 투표를 구분해 각각 add, vote, poll이란 용어를 사용하고 찬반투표는 agree, against를, OXㅅ 투표는 pro, con, neu를 사용했다. 
+  리팩토링에서는 이슈의 등록, 찬반 투표, OXㅅ 투표를 구분해 각각 add, vote, poll이란 용어를 사용하고 찬반투표는 agree, against를, OXㅅ 투표는 pro, con, neu를 사용했다. 
 
 
-    기존 코드에서 이슈 투표 기능 구현 후 유저의 중복 방지 로직을 추가하면서 mongoDB의 sub document를 활용해 기존 이슈 스키마의 변경 없이 추가 기능을 구현할 수 있었지만 유저의 중복 투표 여부는 별도의 이슈 라우트로 들어와 유저 서비스를 조회하도록 되어 있었다. 
-    
-    리팩토링에선 테이블 설계시 각 이슈에 대한 투표 테이블에 유저 id를 외래키로 넣어 이슈 조회시 유저의 투표 여부를 조회하고 이슈 서비스의 투표 로직에서 중복 투표 방지 로직을 추가했다.
+  기존 코드에서 이슈 투표 기능 구현 후 유저의 중복 방지 로직을 추가하면서 mongoDB의 sub document를 활용해 기존 이슈 스키마의 변경 없이 추가 기능을 구현할 수 있었지만 유저의 중복 투표 여부는 별도의 이슈 라우트로 들어와 유저 서비스를 조회하도록 되어 있었다. 
+  
+  리팩토링에선 테이블 설계시 각 이슈에 대한 투표 테이블에 유저 id를 외래키로 넣어 이슈 조회시 유저의 투표 여부를 조회하고 이슈 서비스의 투표 로직에서 중복 투표 방지 로직을 추가했다.
 
 |  | 기존 코드 매서드명 | 리팩토링 코드 매서드명 |
 | --- | --- | --- |
@@ -104,13 +104,13 @@ $ npm run start:dev
      
 **3️⃣ Restful API 원칙에 좀 더 충실하도록 자원의 구분**
 
-    위 2번의 매서드명 수정도 행위에 대한 명확한 의도 전달을 위한 작업이었다. 이번엔 자원의 구분을 좀 더 세분화하기로 했다. 
-    
-    기존 코드가 `도메인 주소/issue` 주소 이후의 쿼리문에 따라 그래프에 등록된 이슈를 보여주거나 미등록된 top3를 보여주거나 미등록된 나머지 이슈를 보여주었다. 이 세가지 구분되는 행위가 모두 issue란 한 가지 자원을 바라보고 있었다. 
-    
-    mongoDB에선 issue 스키마 하나에 sub document로 투표 정보에 대한 자원이 저장되어 있어 자원의 구분이 용이하지 않았다. 
-    
-    RDB로 리팩토링하면서 issue, vote, poll 을 별도의 entity로 관리하게 되었으므로 위 매서드와 통일성을 가지도록 라우터를 분리했다. 
+  위 2번의 매서드명 수정도 행위에 대한 명확한 의도 전달을 위한 작업이었다. 이번엔 자원의 구분을 좀 더 세분화하기로 했다. 
+  
+  기존 코드가 `도메인 주소/issue` 주소 이후의 쿼리문에 따라 그래프에 등록된 이슈를 보여주거나 미등록된 top3를 보여주거나 미등록된 나머지 이슈를 보여주었다. 이 세가지 구분되는 행위가 모두 issue란 한 가지 자원을 바라보고 있었다. 
+  
+  mongoDB에선 issue 스키마 하나에 sub document로 투표 정보에 대한 자원이 저장되어 있어 자원의 구분이 용이하지 않았다. 
+  
+  RDB로 리팩토링하면서 issue, vote, poll 을 별도의 entity로 관리하게 되었으므로 위 매서드와 통일성을 가지도록 라우터를 분리했다. 
 
 ### API 목록
 
@@ -156,13 +156,13 @@ $ npm run start:dev
 
   기존 로직을 
 
-    ```
+    
     if (req.user.type === 'once_token') {
         res.cookie('once_token', req.user.once_token);
       }
     res.cookie('access_token', req.user.access_token);
     res.cookie('refresh_token', req.user.refresh_token);
-    ```
+    
 
   위 코드와 같이 if ~ else문을 사용하지 않고 else문을 풀어주니 access_token, refresh_token 에는 각각 undefined가 들어가 프론트에서 로그인으로 인식하고 로그아웃 버튼으로 전환되었다. 
 
@@ -172,7 +172,7 @@ $ npm run start:dev
 
   once token 사용전 기존 로직은 다음과 같다.
 
-    ```
+    
     const user = await this.authService.validateUser(kakaoEmail);
 
       if (!user) {
@@ -181,7 +181,7 @@ $ npm run start:dev
       }
 
       const accessToken = await this.authService.createLoginToken(user);
-    ```
+    
   user가 없으면 유저를 추가하고 if문 안에서 다시 const user를 생성하더라도 if문 블록 밖의 accessToken에서는 이 user를 읽지 못한다. if 문 바깥의 첫 줄의 const user를 바라보게 되므로 에러가 났던 것이다. 
 
   JS의 호이스팅과 스코프에 대한 좋은 공부가 되었다.
@@ -191,7 +191,7 @@ $ npm run start:dev
   전체 정치인을 조회하고 그 정치인의 그래프에 등록된 이슈들을 프론트로 보내줄때 DB에서 조회한 데이터를 정치인을 구분할 수 있는 프로퍼티의 값으로 배열에 담아 보내고 싶었다. 데이터 전처리를 하지 않고 쿼리문으로 조회한 DB 정보는 다음과 같았다.
 
 
-          ```
+          
           [
             {
                   "politician_id": 8,
@@ -218,10 +218,10 @@ $ npm run start:dev
                 "score": null
             }
           ]
-          ```
-    위와 같이 결과가 나온다면 프론트에서 정치인별로 매번 다시 순회하며 데이터를 정렬해야하는데 아래와 같이 정치인별로 프로퍼티로 만들어 보내면 객체 프로퍼티만 바로 조회할 수 있으므로 성능상 더 효율적일 것이다. 
+          
+  위와 같이 결과가 나온다면 프론트에서 정치인별로 매번 다시 순회하며 데이터를 정렬해야하는데 아래와 같이 정치인별로 프로퍼티로 만들어 보내면 객체 프로퍼티만 바로 조회할 수 있으므로 성능상 더 효율적일 것이다. 
 
-        ```
+        
         {
           "politician_id_8": [
               {
@@ -252,11 +252,11 @@ $ npm run start:dev
               }
           ]
       }
-      ```
+      
 
-      DB 쿼리문으로 위와 같은 결과를 보내고 싶었지만 방법을 찾지 못했다. getIssuesByPolitician이란 매서드를 만들어 정치인 id를 인수로 전달하면 해당 정치인의 이슈가 조회되도록 하고 모든 정치인의 이슈 조회 매서드에서 정치인 id가 담긴 배열에 map이나 forEach로 이 매서드를 적용하면 결과가 나올 것으로 생각했는데 비동기 처리를 해도 빈 배열만 나오고 원하는 결과가 나오지 않았다. 
+  DB 쿼리문으로 위와 같은 결과를 보내고 싶었지만 방법을 찾지 못했다. getIssuesByPolitician이란 매서드를 만들어 정치인 id를 인수로 전달하면 해당 정치인의 이슈가 조회되도록 하고 모든 정치인의 이슈 조회 매서드에서 정치인 id가 담긴 배열에 map이나 forEach로 이 매서드를 적용하면 결과가 나올 것으로 생각했는데 비동기 처리를 해도 빈 배열만 나오고 원하는 결과가 나오지 않았다. 
 
-      ```
+      
       const politicians = await this.getAllPoliticians();
 
       const politicianIDs = Array.from(politicians).map((e) => e.id);  // 정치인들 id만 담긴 배열 생성
@@ -274,12 +274,12 @@ $ npm run start:dev
 
       const result = await this.getIssuesByPolitician(8);  
       //개별 정치인 이슈 정상 출력
-      ```
+      
 
       
-    따로 전처리를 위한 객체의 동적 프로퍼티 생성 함수를 만들어 두고 모든 정치인의 이슈 조회 매서드에서 이 함수를 이용해 DB 조회 데이터를 재처리해 프론트로 보내주는 것으로 해결했다. 
+  따로 전처리를 위한 객체의 동적 프로퍼티 생성 함수를 만들어 두고 모든 정치인의 이슈 조회 매서드에서 이 함수를 이용해 DB 조회 데이터를 재처리해 프론트로 보내주는 것으로 해결했다. 
 
-      ```
+      
       groupByPolitician(arr, prop) {
           return arr.reduce(function (acc, obj) {
             if (!acc[`${prop}_${obj[prop]}`]) {
@@ -289,7 +289,7 @@ $ npm run start:dev
             return acc;
           }, {});
         }
-      ```
+      
 
 
      
