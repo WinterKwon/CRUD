@@ -225,7 +225,7 @@ export class IssueService {
     return issues;
   }
 
-  //top3 제외 isVoteActive:true인 이슈들- 페이지네이션용 토탈페이지
+  //top3 제외 isVoteActive:true인 이슈 갯수 카운트
   async getVoteActiveIssuesByPolitician(targetPolitician: number) {
     const top3 = await this.getTop3IssuesByPolitician(targetPolitician);
     const top3Issues = Array.from(top3).map((e) => e.issue_id);
