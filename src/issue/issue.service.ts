@@ -143,12 +143,15 @@ export class IssueService {
     const { userId, pro, con, neu } = pollData;
 
     //oxㅅ 투표 유효성 검증
-    if (
-      [pro, con, neu].filter((value) => {
-        return value !== undefined && value !== null;
-      }).length !== 1
-    )
+    if ([pro, con, neu].filter((e) => e === 1).length !== 1) {
       throw new Error(' invalid poll');
+    }
+
+    // user 유효성 검증
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new Error('invalid user');
+    }
 
     // 각 인스턴스 생성
     const issue = await this.issueRepository.findOneBy({ id: issueId });
