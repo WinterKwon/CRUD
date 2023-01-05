@@ -20,18 +20,56 @@ export class PoliticianService {
     return await this.politicianRepository.find();
   }
 
+  async getIssuesByPolitician(targetPolitician: number) {
+    const result = await this.politicianRepository
+      .createQueryBuilder('politician')
+      .leftJoinAndSelect('politician.issues', 'issue')
+      .leftJoinAndSelect('issue.polls', 'poll')
+      .select([
+        'politician.id',
+        'issue.id',
+        'issue.issueDate as date',
+        'SUM(poll.pro) - SUM(poll.con) as score',
+      ])
+      .where('issue.isPollActive = :isPollActive', { isPollActive: true })
+      .andWhere('issue.politician = :politician', {
+        politician: targetPolitician,
+      })
+      .groupBy('issue.id')
+      .orderBy({ 'poll.pollDate': 'DESC' })
+      // .orderBy({ 'issue.issueDate': 'DESC', score: 'DESC' })
+      .getRawMany();
+
+    return result;
+  }
+
+  groupByPolitician(arr, prop) {
+    return arr.reduce(function (acc, obj) {
+      if (!acc[`${prop}_${obj[prop]}`]) {
+        acc[`${prop}_${obj[prop]}`] = [];
+      }
+      acc[`${prop}_${obj[prop]}`].push(obj);
+      return acc;
+    }, {});
+  }
+
   async getAllPoliticians4Graph() {
     const result = await this.politicianRepository
       .createQueryBuilder('politician')
       .leftJoinAndSelect('politician.issues', 'issue')
       .leftJoinAndSelect('issue.polls', 'poll')
+      .select([
+        'politician.id',
+        'issue.id',
+        'issue.issueDate as date',
+        'SUM(poll.pro) - SUM(poll.con) as score',
+      ])
       .where('issue.isPollActive = :isPollActive', { isPollActive: true })
-      .addSelect('SUM(poll.pro) - SUM(poll.con)', 'total')
-      .groupBy('politician.id')
-      .orderBy({ 'poll.pollDate': 'DESC', total: 'DESC' })
-      .getMany();
-
-    return result;
+      .groupBy('issue.id')
+      .orderBy({ 'poll.pollDate': 'DESC' })
+      .getRawMany();
+    const answer = this.groupByPolitician(result, 'politician_id');
+    return answer;
   }
 
   async getOnePoliticianById(id: number): Promise<Politician> {
@@ -67,6 +105,4 @@ export class PoliticianService {
     await this.politicianRepository.delete({ id: politicianId });
     return `successfully deleted politicianID ${politicianId}`;
   }
-
-  // async getPoliCountByIssue(id:number): Promise<
 }
