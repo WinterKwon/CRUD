@@ -53,7 +53,7 @@ export class PoliticianService {
     }, {});
   }
 
-  async getAllPoliticians4Graph() {
+  async getAllPollIssuesPerPolitician() {
     const result = await this.politicianRepository
       .createQueryBuilder('politician')
       .leftJoinAndSelect('politician.issues', 'issue')

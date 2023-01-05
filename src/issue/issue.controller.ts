@@ -16,7 +16,7 @@ import { AddVoteDto } from './dto/issue.add.vote.dto';
 import { QueryIssueDto } from './dto/issue.pagination.dto';
 import { IssueService } from './issue.service';
 
-@Controller('issue')
+@Controller('issues')
 export class IssueController {
   constructor(private issueService: IssueService) {}
 
@@ -84,9 +84,11 @@ export class IssueController {
     }
   }
 
-  // 정치인별 미등록 이슈 중 top3제외 페이지네이션용 조회
-  @Get()
-  async getIssues(@Query() issueQuery: QueryIssueDto, @Res() response) {
+  // top3 제외 찬반 투표 가능한 이슈 - 페이지네이션
+  // 쿼리로 정치인 id, pageNum, perPage 요청 받음
+  // 디폴트는 pageNum=1, perPage=10
+  @Get('vote')
+  async getIssuesForVote(@Query() issueQuery: QueryIssueDto, @Res() response) {
     try {
       const { targetPolitician, pageOptions } = issueQuery;
       console.log('pageoptions: ', pageOptions);
@@ -113,17 +115,18 @@ export class IssueController {
     }
   }
 
-  // 미등록 이슈중 등록임박 top3 조회
-  @Get(':id/top3')
-  async getTop3Issues(@Param('id') politicianId: number, @Res() response) {
+  // 그래프 미등록 이슈 중 등록 임박 top3 조회
+  @Get('vote/top3')
+  async getTop3Issues(@Query() issueQuery: QueryIssueDto, @Res() response) {
     try {
+      const { targetPolitician } = issueQuery;
       const result = await this.issueService.getTop3IssuesByPolitician(
-        politicianId,
+        targetPolitician,
       );
       const len = result.length;
       return response.status(HttpStatus.OK).json({
         message: 'found successfully',
-        targetPolitician: politicianId,
+        targetPolitician: targetPolitician,
         result,
         len,
       });
@@ -134,13 +137,12 @@ export class IssueController {
     }
   }
 
-  // 정치인별 그래프용 이슈 조회
-  @Get(':id/graph')
-  async getIssuesForGraph(
-    @Param('id') targetPolitician: number,
-    @Res() response,
-  ) {
+  // 정치인별 OXㅅ 투표 가능한 그래프용 이슈 조회
+  // 부족별 투표 결과 조회됨
+  @Get('poll')
+  async getIssuesForGraph(@Query() issueQuery: QueryIssueDto, @Res() response) {
     try {
+      const { targetPolitician } = issueQuery;
       const result = await this.issueService.getPollActiveIssuesByPolitician(
         targetPolitician,
       );
@@ -154,20 +156,6 @@ export class IssueController {
     }
   }
 
-  // 정치인 구분 없는 모든 oxㅅ 투표 가능 이슈 조회
-  @Get('all')
-  async getAllPollActiveIssues(@Res() response) {
-    try {
-      const result = await this.issueService.getAllPollActiveIssues();
-      return response.status(HttpStatus.OK).json(result);
-    } catch (err) {
-      return response.json({
-        message: err.message,
-      });
-    }
-  }
-
-  // 이슈별 찬반 투표 결과 조회
   @Get(':id/vote-result')
   async getAllAgreeAgainstByIssue(
     @Param('id') issueId: number,

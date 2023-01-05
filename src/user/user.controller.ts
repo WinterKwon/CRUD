@@ -15,7 +15,7 @@ import { User } from 'src/entities/user.entity';
 import { AddUserDto } from './dto/user.add.user.dto';
 import { UpdateUserDto } from './dto/user.update.user.dto';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -45,7 +45,7 @@ export class UserController {
         user,
       });
     } catch (err) {
-      return response.status(err.status).json(err.response);
+      return response.status(HttpStatus.BAD_REQUEST).json(err.message);
     }
   }
 

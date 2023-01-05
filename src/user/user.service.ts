@@ -24,7 +24,7 @@ export class UserService {
     });
 
     if (!user) {
-      return null;
+      throw new Error(`can't find such a user`);
     }
     return user;
   }

@@ -19,14 +19,15 @@ import { PoliticianService } from './politician.service';
 export class PoliticianController {
   constructor(private politicianService: PoliticianService) {}
 
+  // 정치인 전체 페이지 그래프용 이슈 조회 - 정치인별 그래프에 등록된 이슈
   @Get()
-  async getPoliticiansMainpage(@Res() response): Promise<Array<any>> {
+  async getAllPollIssuesPerPolitician(@Res() response): Promise<Array<any>> {
     try {
-      // 그래프에 등록된 이슈의 부족별 투표 결과까지 40개. 정렬은 이슈등록날짜별로, 토탈 투표수 descending으로
-      const result = await this.politicianService.getAllPoliticians4Graph();
-      return response.json(result);
+      const result =
+        await this.politicianService.getAllPollIssuesPerPolitician();
+      return response.status(HttpStatus.OK).json(result);
     } catch (err) {
-      return response.status(err.status).json(err.response);
+      return response.status(HttpStatus.BAD_REQUEST).json(err.message);
     }
   }
 
@@ -39,7 +40,7 @@ export class PoliticianController {
         politicians,
       });
     } catch (err) {
-      return response.status(err.status).json(err.response);
+      return response.status(HttpStatus.BAD_REQUEST).json(err.message);
     }
   }
 
@@ -52,7 +53,7 @@ export class PoliticianController {
         politician,
       });
     } catch (err) {
-      return response.status(err.status).json(err.response);
+      return response.status(HttpStatus.BAD_REQUEST).json(err.message);
     }
   }
 
@@ -68,7 +69,7 @@ export class PoliticianController {
         politician,
       });
     } catch (err) {
-      return response.status(err.status).json(err.response);
+      return response.status(HttpStatus.BAD_REQUEST).json(err.message);
     }
   }
 

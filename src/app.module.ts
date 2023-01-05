@@ -10,10 +10,7 @@ import { PoliticianModule } from './politician/politician.module';
 import { Politician } from './entities/politician.entity';
 import { IssueModule } from './issue/issue.module';
 import { Issue } from './entities/issue.entity';
-import { Register } from './entities/register.entity';
 import { Poll } from './entities/poll.entity';
-import { RegisterProCon } from './entities/registerProCon.entity';
-import { PollResult } from './entities/pollResult.entitiy';
 import { Vote } from './entities/vote.entity';
 @Module({
   imports: [
@@ -29,16 +26,7 @@ import { Vote } from './entities/vote.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [
-        User,
-        Politician,
-        Issue,
-        Register,
-        Poll,
-        PollResult,
-        RegisterProCon,
-        Vote,
-      ],
+      entities: [User, Politician, Issue, Poll, Vote],
       synchronize: true,
       logging: true,
     }),
